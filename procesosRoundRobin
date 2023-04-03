@@ -1,0 +1,35 @@
+from queue import Queue
+
+class Process:
+    def __init__(self, name, burst_time):
+        self.name = name
+        self.burst_time = burst_time
+        self.remaining_time = burst_time
+
+class RoundRobinScheduler:
+    def __init__(self, quantum):
+        self.quantum = quantum
+        self.time_elapsed = 0
+        self.process_queue = Queue()
+
+    def add_process(self, process):
+        self.process_queue.put(process)
+
+    def run(self):
+        while not self.process_queue.empty():
+            current_process = self.process_queue.get()
+            print(f"Running {current_process.name} for {self.quantum} seconds")
+            self.time_elapsed += self.quantum
+            current_process.remaining_time -= self.quantum
+            if current_process.remaining_time > 0:
+                self.process_queue.put(current_process)
+                print(f"{current_process.name} blocked")
+            else:
+                print(f"{current_process.name} finished in {self.time_elapsed} seconds")
+
+if __name__ == "__main__":
+    processes = [Process("P1", 10), Process("P2", 5), Process("P3", 8)]
+    rr = RoundRobinScheduler(quantum=2)
+    for process in processes:
+        rr.add_process(process)
+    rr.run()
